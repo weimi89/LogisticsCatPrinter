@@ -21,26 +21,31 @@ Tauri 1.x 桌面應用程式,用來編輯物流標籤機的 JSON 設定檔、管
 
 ## 下載與安裝(Ubuntu 20.04+)
 
-前往 [Releases](https://github.com/weimi89/LogisticsCatPrinter/releases) 下載二選一:
+前往 [Releases](https://github.com/weimi89/LogisticsCatPrinter/releases/latest) 下載最新版,或直接用以下指令。
+
+> 檔名由 Tauri 依 Debian naming policy 自動轉為 kebab-case:`logistics-cat-printer_<version>_amd64.*`
 
 ### A. `.deb` 系統安裝(建議)
 
 ```bash
-sudo apt install ./LogisticsCatPrinter_0.1.0_amd64.deb
+# 下載 + 安裝(會自動處理依賴)
+wget https://github.com/weimi89/LogisticsCatPrinter/releases/latest/download/logistics-cat-printer_0.1.0_amd64.deb
+sudo apt install ./logistics-cat-printer_0.1.0_amd64.deb
 ```
 
-安裝後可在應用程式選單找到「物流貓標籤機設定」,或在終端機打 `LogisticsCatPrinter`。
+安裝後可在應用程式選單找到「LogisticsCatPrinter」,或在終端機打 `LogisticsCatPrinter` 啟動。視窗標題顯示「物流貓標籤機設定」。
 
 ### B. `.AppImage` 免安裝執行
 
 ```bash
-chmod +x LogisticsCatPrinter_0.1.0_amd64.AppImage
-./LogisticsCatPrinter_0.1.0_amd64.AppImage
+wget https://github.com/weimi89/LogisticsCatPrinter/releases/latest/download/logistics-cat-printer_0.1.0_amd64.AppImage
+chmod +x logistics-cat-printer_0.1.0_amd64.AppImage
+./logistics-cat-printer_0.1.0_amd64.AppImage
 ```
 
 若系統未裝 FUSE 而無法執行:
 ```bash
-./LogisticsCatPrinter_0.1.0_amd64.AppImage --appimage-extract-and-run
+./logistics-cat-printer_0.1.0_amd64.AppImage --appimage-extract-and-run
 ```
 
 ### Runtime 依賴
@@ -81,9 +86,9 @@ cargo tauri dev
 ```bash
 cd src-tauri
 cargo tauri build --bundles deb,appimage
-# 產物:
-#   src-tauri/target/release/bundle/deb/LogisticsCatPrinter_*.deb
-#   src-tauri/target/release/bundle/appimage/LogisticsCatPrinter_*.AppImage
+# 產物(Tauri 會轉為 kebab-case):
+#   src-tauri/target/release/bundle/deb/logistics-cat-printer_*.deb
+#   src-tauri/target/release/bundle/appimage/logistics-cat-printer_*.AppImage
 ```
 
 ---
