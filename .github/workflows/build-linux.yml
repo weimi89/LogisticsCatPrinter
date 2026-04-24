@@ -46,16 +46,19 @@ jobs:
         working-directory: src-tauri
         run: cargo build --release
 
-      - name: Show binary info
+      - name: Stage release binary
         run: |
-          ls -lh src-tauri/target/release/gkconfig-ui
-          file src-tauri/target/release/gkconfig-ui
+          mkdir -p dist
+          cp src-tauri/target/release/gkconfig-ui dist/LogisticsCatPrinter-linux-x64
+          chmod +x dist/LogisticsCatPrinter-linux-x64
+          ls -lh dist/LogisticsCatPrinter-linux-x64
+          file dist/LogisticsCatPrinter-linux-x64
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: gkconfig-ui-linux-x64
-          path: src-tauri/target/release/gkconfig-ui
+          name: LogisticsCatPrinter-linux-x64
+          path: dist/LogisticsCatPrinter-linux-x64
           if-no-files-found: error
           retention-days: 30
 
@@ -63,5 +66,5 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: src-tauri/target/release/gkconfig-ui
+          files: dist/LogisticsCatPrinter-linux-x64
           fail_on_unmatched_files: true

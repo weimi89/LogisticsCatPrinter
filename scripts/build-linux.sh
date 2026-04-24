@@ -36,14 +36,14 @@ if [[ ! -f "$TARGET_BIN" ]]; then
 fi
 
 mkdir -p "$OUT_DIR"
-cp "$TARGET_BIN" "$OUT_DIR/gkconfig-ui"
-chmod +x "$OUT_DIR/gkconfig-ui"
+cp "$TARGET_BIN" "$OUT_DIR/LogisticsCatPrinter-linux-x64"
+chmod +x "$OUT_DIR/LogisticsCatPrinter-linux-x64"
 
 echo ""
 echo "==> Done"
-echo "產物: $OUT_DIR/gkconfig-ui"
-file "$OUT_DIR/gkconfig-ui" || true
-ls -lh "$OUT_DIR/gkconfig-ui"
+echo "產物: $OUT_DIR/LogisticsCatPrinter-linux-x64"
+file "$OUT_DIR/LogisticsCatPrinter-linux-x64" || true
+ls -lh "$OUT_DIR/LogisticsCatPrinter-linux-x64"
 echo ""
 echo "目標機 Ubuntu 22.04 amd64 需安裝 runtime 依賴:"
 echo "  sudo apt-get install -y libwebkit2gtk-4.1-0 libgtk-3-0 libayatana-appindicator3-1 librsvg2-2"

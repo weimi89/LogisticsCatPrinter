@@ -37,8 +37,8 @@ sudo apt-get install -y \
 執行:
 
 ```bash
-chmod +x gkconfig-ui
-./gkconfig-ui
+chmod +x LogisticsCatPrinter-linux-x64
+./LogisticsCatPrinter-linux-x64
 ```
 
 ---
@@ -102,7 +102,7 @@ Workflow 定義在 `.github/workflows/build-linux.yml`:
 ```
 
 - Dockerfile:`docker/linux-build.Dockerfile`(Ubuntu 22.04 amd64 base)
-- 產物:`dist/linux-x64/gkconfig-ui`
+- 產物:`dist/linux-x64/LogisticsCatPrinter-linux-x64`
 - arm64 Mac 透過 qemu 模擬 amd64,首次約 10–20 分鐘
 
 ---
