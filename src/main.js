@@ -1,4 +1,5 @@
-const { invoke } = window.__TAURI__.core;
+const { invoke } = window.__TAURI__.tauri;
+const { open: openDialog } = window.__TAURI__.dialog;
 
 const PRINT_KEYS = ["port", "size", "cmd", "org", "retry", "retryIntv"];
 
@@ -15,13 +16,11 @@ function setMsg(text, kind = "info") {
 }
 
 function openFilePicker() {
-  return invoke("plugin:dialog|open", {
-    options: {
-      title: "選擇 gkconfig.json",
-      multiple: false,
-      directory: false,
-      filters: [{ name: "JSON", extensions: ["json"] }],
-    },
+  return openDialog({
+    title: "選擇 gkconfig.json",
+    multiple: false,
+    directory: false,
+    filters: [{ name: "JSON", extensions: ["json"] }],
   });
 }
 

@@ -1,10 +1,10 @@
 # 物流貓標籤機設定 (LogisticsCatPrinter)
 
-Tauri 2.x 桌面應用程式,用來編輯物流標籤機的 JSON 設定檔、管理格口列表,並一鍵執行 `c4000.sh` 重啟設備。
+Tauri 1.x 桌面應用程式,用來編輯物流標籤機的 JSON 設定檔、管理格口列表,並一鍵執行 `c4000.sh` 重啟設備。
 
 - 前端:純 HTML / CSS / JS(無框架,`src/`)
-- 後端:Rust (`src-tauri/`),Tauri 2 + `tauri-plugin-dialog`
-- 平台:macOS、Linux (Ubuntu 22.04+)
+- 後端:Rust (`src-tauri/`),Tauri 1.x
+- 目標平台:**Ubuntu 20.04+**(原生支援 `webkit2gtk-4.0`)、macOS
 
 ---
 
@@ -14,31 +14,40 @@ Tauri 2.x 桌面應用程式,用來編輯物流標籤機的 JSON 設定檔、管
 - 編輯基本設定(7-11 格口數、API URL)
 - 新增 / 刪除 / 編輯格口(代號、通道、USB 埠、尺寸、列印指令、起點座標、重試設定)
 - 即時預覽原始 JSON
-- 儲存回檔案(保留鍵順序,`serde_json` 的 `preserve_order` feature)
+- 儲存回檔案(保留鍵順序)
 - 「重啟設備」按鈕執行設定檔目錄下的 `c4000.sh`
 
 ---
 
-## 下載可執行檔
+## 下載與安裝(Ubuntu 20.04+)
 
-前往 [Releases](https://github.com/weimi89/LogisticsCatPrinter/releases) 下載對應平台的 binary。
+前往 [Releases](https://github.com/weimi89/LogisticsCatPrinter/releases) 下載二選一:
 
-Linux 目標機(Ubuntu 22.04 amd64)首次執行前需安裝 runtime 依賴:
+### A. `.deb` 系統安裝(建議)
 
 ```bash
-sudo apt-get update
-sudo apt-get install -y \
-  libwebkit2gtk-4.1-0 \
-  libgtk-3-0 \
-  libayatana-appindicator3-1 \
-  librsvg2-2
+sudo apt install ./LogisticsCatPrinter_0.1.0_amd64.deb
 ```
 
-執行:
+安裝後可在應用程式選單找到「物流貓標籤機設定」,或在終端機打 `LogisticsCatPrinter`。
+
+### B. `.AppImage` 免安裝執行
 
 ```bash
-chmod +x LogisticsCatPrinter-linux-x64
-./LogisticsCatPrinter-linux-x64
+chmod +x LogisticsCatPrinter_0.1.0_amd64.AppImage
+./LogisticsCatPrinter_0.1.0_amd64.AppImage
+```
+
+若系統未裝 FUSE 而無法執行:
+```bash
+./LogisticsCatPrinter_0.1.0_amd64.AppImage --appimage-extract-and-run
+```
+
+### Runtime 依賴
+
+Ubuntu 20.04+ 預設通常已有。若缺:
+```bash
+sudo apt install -y libwebkit2gtk-4.0-37 libgtk-3-0 libayatana-appindicator3-1 librsvg2-2
 ```
 
 ---
@@ -48,33 +57,33 @@ chmod +x LogisticsCatPrinter-linux-x64
 ### 前置需求
 
 - Rust stable (`rustup`)
-- Node 非必要(前端是純 static HTML)
+- Tauri CLI v1:`cargo install tauri-cli --version '^1' --locked`
 - 系統依賴:
   - **macOS**:Xcode Command Line Tools
-  - **Ubuntu 22.04+**:
+  - **Ubuntu 20.04+**:
     ```bash
-    sudo apt-get install -y \
-      build-essential pkg-config libssl-dev \
-      libwebkit2gtk-4.1-dev libgtk-3-dev \
+    sudo apt install -y \
+      build-essential curl wget file pkg-config libssl-dev \
+      libwebkit2gtk-4.0-dev libgtk-3-dev \
       libayatana-appindicator3-dev librsvg2-dev \
-      libsoup-3.0-dev libjavascriptcoregtk-4.1-dev
+      patchelf
     ```
 
 ### 本機開發執行
 
 ```bash
 cd src-tauri
-cargo tauri dev        # 需先 cargo install tauri-cli --version '^2'
-# 或直接
-cargo run
+cargo tauri dev
 ```
 
 ### 本機 Release 建構
 
 ```bash
 cd src-tauri
-cargo build --release
-# 產物: src-tauri/target/release/gkconfig-ui (或 .exe)
+cargo tauri build --bundles deb,appimage
+# 產物:
+#   src-tauri/target/release/bundle/deb/LogisticsCatPrinter_*.deb
+#   src-tauri/target/release/bundle/appimage/LogisticsCatPrinter_*.AppImage
 ```
 
 ---
@@ -91,9 +100,9 @@ git push origin v0.1.1
 ```
 
 Workflow 定義在 `.github/workflows/build-linux.yml`:
+- 跑在 `ubuntu-latest` 上的 `ubuntu:20.04` container
 - `push` 到 `main` / `pull_request`:build + 上傳 artifact(保留 30 天)
-- `push` tag `v*`:build + 自動附檔到 GitHub Release
-- 環境:`ubuntu-22.04`,原生 amd64
+- `push` tag `v*`:build + 自動附 .deb + .AppImage 到 GitHub Release
 
 ### B. 本機 Docker(無網路 / 不走 CI 時)
 
@@ -101,9 +110,9 @@ Workflow 定義在 `.github/workflows/build-linux.yml`:
 ./scripts/build-linux.sh
 ```
 
-- Dockerfile:`docker/linux-build.Dockerfile`(Ubuntu 22.04 amd64 base)
-- 產物:`dist/linux-x64/LogisticsCatPrinter-linux-x64`
-- arm64 Mac 透過 qemu 模擬 amd64,首次約 10–20 分鐘
+- Dockerfile:`docker/linux-build.Dockerfile`(Ubuntu 20.04 amd64 base)
+- 產物:`dist/linux-x64/*.deb` + `dist/linux-x64/*.AppImage`
+- arm64 Mac 透過 qemu 模擬 amd64,首次約 15–30 分鐘
 
 ---
 
@@ -120,7 +129,6 @@ LogisticsCatPrinter/
 │   ├── src/
 │   │   ├── main.rs
 │   │   └── lib.rs                Tauri commands
-│   ├── capabilities/default.json 權限設定
 │   ├── icons/                    多平台應用圖示
 │   ├── Cargo.toml
 │   └── tauri.conf.json
@@ -136,7 +144,7 @@ LogisticsCatPrinter/
 
 ## Tauri Commands
 
-定義於 `src-tauri/src/lib.rs`,前端透過 `window.__TAURI__.core.invoke()` 呼叫:
+定義於 `src-tauri/src/lib.rs`,前端透過 `window.__TAURI__.tauri.invoke()` 呼叫:
 
 | Command | 功能 |
 |---|---|
@@ -150,4 +158,4 @@ LogisticsCatPrinter/
 
 ## 版本
 
-v0.1.0 — 首個 Linux 可執行檔版本
+- **v0.1.0** — 首個 Linux 正式版(Ubuntu 20.04+ 原生支援,Tauri 1.x)

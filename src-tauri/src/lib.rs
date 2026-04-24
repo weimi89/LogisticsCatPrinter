@@ -2,13 +2,13 @@ use serde_json::Value;
 use std::fs;
 use std::path::PathBuf;
 use std::process::Command;
-use tauri::{AppHandle, Manager};
+use tauri::AppHandle;
 
 fn last_path_file(app: &AppHandle) -> Result<PathBuf, String> {
     let dir = app
-        .path()
+        .path_resolver()
         .app_config_dir()
-        .map_err(|e| format!("取得 app config dir 失敗: {e}"))?;
+        .ok_or_else(|| "取得 app config dir 失敗".to_string())?;
     if !dir.exists() {
         fs::create_dir_all(&dir).map_err(|e| format!("建立 app config dir 失敗: {e}"))?;
     }
@@ -83,10 +83,8 @@ fn set_last_path(app: AppHandle, path: String) -> Result<(), String> {
     Ok(())
 }
 
-#[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .plugin(tauri_plugin_dialog::init())
         .invoke_handler(tauri::generate_handler![
             read_config,
             write_config,

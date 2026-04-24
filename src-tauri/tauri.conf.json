@@ -1,13 +1,45 @@
 {
-  "$schema": "https://schema.tauri.app/config/2",
-  "productName": "物流貓標籤機設定",
-  "version": "0.1.0",
-  "identifier": "com.weiminet.gkconfig-ui",
-  "build": {
-    "frontendDist": "../src"
+  "$schema": "https://raw.githubusercontent.com/tauri-apps/tauri/tauri-v1.5.0/tooling/cli/schema.json",
+  "package": {
+    "productName": "LogisticsCatPrinter",
+    "version": "0.1.0"
   },
-  "app": {
-    "withGlobalTauri": true,
+  "build": {
+    "distDir": "../src",
+    "devPath": "../src",
+    "beforeDevCommand": "",
+    "beforeBuildCommand": "",
+    "withGlobalTauri": true
+  },
+  "tauri": {
+    "allowlist": {
+      "all": false,
+      "dialog": {
+        "open": true
+      }
+    },
+    "bundle": {
+      "active": true,
+      "category": "DeveloperTool",
+      "copyright": "",
+      "shortDescription": "物流貓標籤機設定工具",
+      "longDescription": "物流貓標籤機設定工具",
+      "identifier": "com.weiminet.gkconfig-ui",
+      "targets": ["deb", "appimage"],
+      "icon": [
+        "icons/32x32.png",
+        "icons/128x128.png",
+        "icons/128x128@2x.png",
+        "icons/icon.icns",
+        "icons/icon.ico"
+      ],
+      "deb": {
+        "depends": []
+      }
+    },
+    "security": {
+      "csp": null
+    },
     "windows": [
       {
         "label": "main",
@@ -16,21 +48,6 @@
         "height": 820,
         "resizable": true
       }
-    ],
-    "security": {
-      "csp": null
-    }
-  },
-  "bundle": {
-    "active": true,
-    "targets": "all",
-    "icon": [
-      "icons/32x32.png",
-      "icons/128x128.png",
-      "icons/128x128@2x.png",
-      "icons/icon.icns",
-      "icons/icon.ico"
-    ],
-    "category": "DeveloperTool"
+    ]
   }
 }

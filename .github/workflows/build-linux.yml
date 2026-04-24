@@ -1,4 +1,4 @@
-name: Build Linux Binary
+name: Build Linux Packages
 
 on:
   push:
@@ -13,52 +13,68 @@ permissions:
 
 jobs:
   build:
-    name: Build (Ubuntu 22.04 amd64)
-    runs-on: ubuntu-22.04
+    name: Build (.deb + .AppImage) on Ubuntu 20.04
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:20.04
+      options: --privileged
+    env:
+      DEBIAN_FRONTEND: noninteractive
+      TZ: Asia/Taipei
+      APPIMAGE_EXTRACT_AND_RUN: '1'
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install system dependencies
+      - name: Install base + Tauri build deps
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            build-essential \
-            pkg-config \
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            curl ca-certificates git wget file sudo tzdata \
+            build-essential pkg-config \
             libssl-dev \
-            libwebkit2gtk-4.1-dev \
+            libwebkit2gtk-4.0-dev \
             libgtk-3-dev \
             libayatana-appindicator3-dev \
             librsvg2-dev \
-            libsoup-3.0-dev \
-            libjavascriptcoregtk-4.1-dev
+            patchelf \
+            fuse libfuse2 \
+            xdg-utils desktop-file-utils
+          ln -fs /usr/share/zoneinfo/$TZ /etc/localtime
+          echo $TZ > /etc/timezone
+
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Install Rust (stable)
-        uses: dtolnay/rust-toolchain@stable
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+            | sh -s -- -y --default-toolchain stable --profile minimal
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
       - name: Cache cargo registry & target
         uses: Swatinem/rust-cache@v2
         with:
           workspaces: src-tauri -> target
 
-      - name: Build release binary
-        working-directory: src-tauri
-        run: cargo build --release
+      - name: Install tauri-cli v1
+        run: cargo install tauri-cli --version '^1' --locked
 
-      - name: Stage release binary
+      - name: Build + bundle (.deb + .AppImage)
+        working-directory: src-tauri
+        run: cargo tauri build --bundles deb,appimage
+
+      - name: Collect artifacts
         run: |
           mkdir -p dist
-          cp src-tauri/target/release/gkconfig-ui dist/LogisticsCatPrinter-linux-x64
-          chmod +x dist/LogisticsCatPrinter-linux-x64
-          ls -lh dist/LogisticsCatPrinter-linux-x64
-          file dist/LogisticsCatPrinter-linux-x64
+          cp src-tauri/target/release/bundle/deb/*.deb dist/
+          cp src-tauri/target/release/bundle/appimage/*.AppImage dist/
+          echo "---"
+          ls -lh dist/
 
-      - name: Upload artifact
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: LogisticsCatPrinter-linux-x64
-          path: dist/LogisticsCatPrinter-linux-x64
+          name: LogisticsCatPrinter-linux
+          path: dist/*
           if-no-files-found: error
           retention-days: 30
 
@@ -66,5 +82,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          files: dist/LogisticsCatPrinter-linux-x64
+          files: |
+            dist/*.deb
+            dist/*.AppImage
           fail_on_unmatched_files: true
