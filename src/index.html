@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>物流貓標籤機設定</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img class="logo" src="logo.png" alt="logo" />
+      <h1>物流貓標籤機設定</h1>
+      <div id="msg" class="msg"></div>
+    </div>
+    <div class="path-row">
+      <label>設定檔:</label>
+      <span id="pathLabel" class="path">(尚未選擇)</span>
+      <button id="btnPick">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 14l1.45-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.93a2 2 0 0 1 1.66.9l.82 1.2a2 2 0 0 0 1.66.9H18a2 2 0 0 1 2 2v2"/>
+        </svg>
+        選擇 JSON
+      </button>
+      <button id="btnReload" disabled>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="23 4 23 10 17 10"/>
+          <polyline points="1 20 1 14 7 14"/>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+        </svg>
+        重新載入
+      </button>
+    </div>
+  </header>
+
+  <main id="editor" class="hidden">
+    <section class="card">
+      <h2>基本設定</h2>
+      <div class="form-grid">
+        <div class="field">
+          <label for="multi7">7-11 格口數</label>
+          <input type="number" id="multi7" min="1" step="1" />
+        </div>
+        <div class="field field-grow">
+          <label for="apiurl">API 網址</label>
+          <input type="text" id="apiurl" placeholder="https://..." />
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>格口列表</h2>
+        <div class="actions">
+          <button id="btnAddGk">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+            新增格口
+          </button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table id="gkTable">
+          <thead>
+            <tr>
+              <th>代號</th>
+              <th>格口</th>
+              <th>通道</th>
+              <th>USB 埠</th>
+              <th>寬(mm)</th>
+              <th>高(mm)</th>
+              <th>列印指令</th>
+              <th>起點 X</th>
+              <th>起點 Y</th>
+              <th>重試次數</th>
+              <th>重試間隔</th>
+              <th class="op">操作</th>
+            </tr>
+          </thead>
+          <tbody id="gkBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>原始 JSON 預覽</h2>
+      <pre id="preview"></pre>
+    </section>
+
+    <footer class="footer">
+      <button id="btnRestart" class="danger">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="1 4 1 10 7 10"/>
+          <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+        </svg>
+        重啟設備
+      </button>
+      <div class="footer-btns">
+        <button id="btnSave" class="primary">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+            <polyline points="17 21 17 13 7 13 7 21"/>
+            <polyline points="7 3 7 8 15 8"/>
+          </svg>
+          儲存
+        </button>
+      </div>
+    </footer>
+  </main>
+
+  <template id="gkRowTmpl">
+    <tr>
+      <td><input class="f-key" type="text" /></td>
+      <td><input class="f-chute" type="text" /></td>
+      <td><input class="f-gkcid" type="text" /></td>
+      <td><input class="f-port" type="text" /></td>
+      <td><input class="f-sizeW" type="number" min="0" step="1" /></td>
+      <td><input class="f-sizeH" type="number" min="0" step="1" /></td>
+      <td><input class="f-cmd" type="text" /></td>
+      <td><input class="f-orgX" type="number" step="1" /></td>
+      <td><input class="f-orgY" type="number" step="1" /></td>
+      <td><input class="f-retry" type="number" min="0" step="1" /></td>
+      <td><input class="f-retryIntv" type="number" min="0" step="1" /></td>
+      <td class="op">
+        <button class="btn-icon btn-del" title="刪除" aria-label="刪除">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+            <path d="M10 11v6"></path>
+            <path d="M14 11v6"></path>
+            <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path>
+          </svg>
+        </button>
+      </td>
+    </tr>
+  </template>
+
+  <script src="main.js"></script>
+</body>
+</html>

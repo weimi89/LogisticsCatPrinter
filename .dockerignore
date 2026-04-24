@@ -1,0 +1,10 @@
+.git
+.gitignore
+.DS_Store
+**/.DS_Store
+dist/
+backups/
+src-tauri/target/
+src-tauri/gen/schemas/
+node_modules/
+*.log
